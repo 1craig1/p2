@@ -1,31 +1,15 @@
-import Link from "next/link"
-import { Calendar, FileText, MessageSquare } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MiniCalendar } from "@/components/MiniCalendar"
+"use client"
 
-// Sample events data
-const sampleEvents = [
-  {
-    id: "1",
-    title: "Team Meeting",
-    date: new Date(),
-    description: "Weekly team sync-up meeting"
-  },
-  {
-    id: "2",
-    title: "Project Deadline",
-    date: new Date(new Date().setDate(new Date().getDate() + 3)),
-    description: "Submit final project deliverables"
-  },
-  {
-    id: "3",
-    title: "Client Call",
-    date: new Date(new Date().setDate(new Date().getDate() + 5)),
-    description: "Review project progress with client"
-  }
-];
+import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { MiniCalendar } from "@/components/mini-calendar"
+import { Inbox } from "@/components/inbox"
+import { Users } from "lucide-react"
+import { useGroups } from "@/contexts/groups-context"
 
 export default function DashboardPage() {
+  const { groups } = useGroups()
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-col gap-2">
@@ -33,80 +17,26 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Welcome back, John! Here's an overview of your workspace.</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Link href="/dashboard/messages">
-          <Card className="h-full transition-all hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Messages</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-muted-foreground">Unread messages</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/tasks">
-          <Card className="h-full transition-all hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Tasks</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">7</div>
-              <p className="text-xs text-muted-foreground">Pending tasks</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/calendar">
-          <Card className="h-full transition-all hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Calendar</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">2</div>
-              <p className="text-xs text-muted-foreground">Upcoming events today</p>
-            </CardContent>
-          </Card>
-        </Link>
+      <div className="grid gap-4 md:grid-cols-2">
+        {groups.map((group) => (
+          <Link key={group.id} href={`/dashboard/groups/${group.id}`}>
+            <Card className="transition-all hover:shadow-md">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Users className="h-5 w-5 text-muted-foreground" />
+                  <h3 className="font-semibold">{group.name}</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {group.tasks.length} Assignments, {group.meetings.length} Meetings
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Messages</CardTitle>
-            <CardDescription>Your latest conversations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: "Sarah Johnson", message: "Can we discuss the project timeline?", time: "10:30 AM" },
-                { name: "Mike Peters", message: "I've shared the document with you", time: "Yesterday" },
-                { name: "Emma Wilson", message: "Thanks for your help!", time: "Yesterday" },
-              ].map((chat, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    {chat.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{chat.name}</p>
-                      <p className="text-xs text-muted-foreground">{chat.time}</p>
-                    </div>
-                    <p className="text-sm text-muted-foreground truncate">{chat.message}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
+        <Inbox />
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -140,18 +70,10 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+
+          <MiniCalendar />
         </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Calendar</CardTitle>
-          <CardDescription>View your upcoming events</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <MiniCalendar events={sampleEvents} />
-        </CardContent>
-      </Card>
     </div>
   )
 }

@@ -4,25 +4,33 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/contexts/auth-context"
 import { Toaster } from "@/components/ui/toaster"
+import { CalendarProvider } from "@/contexts/calendar-context"
+import { EmailProvider } from "@/contexts/email-context"
+import { GroupsProvider } from "@/contexts/groups-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Communication System",
-  description: "A web-based communication system with various features",
-    generator: 'v0.dev'
+  title: "Student Dashboard",
+  description: "A comprehensive dashboard for university students",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          {children}
+          <CalendarProvider>
+            <EmailProvider>
+              <GroupsProvider>
+                {children}
+              </GroupsProvider>
+            </EmailProvider>
+          </CalendarProvider>
           <Toaster />
         </AuthProvider>
       </body>
