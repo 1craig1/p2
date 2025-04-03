@@ -143,7 +143,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <MiniCalendar events={sampleEvents} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Calendar</CardTitle>
+          <CardDescription>View your upcoming events</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MiniCalendar events={sampleEvents} />
+        </CardContent>
+      </Card>
     </div>
   )
 }
