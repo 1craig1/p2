@@ -1,6 +1,29 @@
 import Link from "next/link"
 import { Calendar, FileText, MessageSquare } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { MiniCalendar } from "@/components/MiniCalendar"
+
+// Sample events data
+const sampleEvents = [
+  {
+    id: "1",
+    title: "Team Meeting",
+    date: new Date(),
+    description: "Weekly team sync-up meeting"
+  },
+  {
+    id: "2",
+    title: "Project Deadline",
+    date: new Date(new Date().setDate(new Date().getDate() + 3)),
+    description: "Submit final project deliverables"
+  },
+  {
+    id: "3",
+    title: "Client Call",
+    date: new Date(new Date().setDate(new Date().getDate() + 5)),
+    description: "Review project progress with client"
+  }
+];
 
 export default function DashboardPage() {
   return (
@@ -84,39 +107,43 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Tasks</CardTitle>
-            <CardDescription>Tasks due soon</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { title: "Finalize project proposal", due: "Today", priority: "High" },
-                { title: "Review marketing materials", due: "Tomorrow", priority: "Medium" },
-                { title: "Team meeting preparation", due: "Apr 3", priority: "Medium" },
-                { title: "Client presentation", due: "Apr 5", priority: "High" },
-              ].map((task, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      task.priority === "High"
-                        ? "bg-red-500"
-                        : task.priority === "Medium"
-                          ? "bg-yellow-500"
-                          : "bg-green-500"
-                    }`}
-                  />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{task.title}</p>
-                    <p className="text-xs text-muted-foreground">Due: {task.due}</p>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Tasks</CardTitle>
+              <CardDescription>Tasks due soon</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { title: "Finalize project proposal", due: "Today", priority: "High" },
+                  { title: "Review marketing materials", due: "Tomorrow", priority: "Medium" },
+                  { title: "Team meeting preparation", due: "Apr 3", priority: "Medium" },
+                  { title: "Client presentation", due: "Apr 5", priority: "High" },
+                ].map((task, index) => (
+                  <div key={index} className="flex items-center gap-4">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        task.priority === "High"
+                          ? "bg-red-500"
+                          : task.priority === "Medium"
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
+                      }`}
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{task.title}</p>
+                      <p className="text-xs text-muted-foreground">Due: {task.due}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+
+      <MiniCalendar events={sampleEvents} />
     </div>
   )
 }
