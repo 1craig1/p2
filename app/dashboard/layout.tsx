@@ -14,6 +14,7 @@ import { MessagesProvider } from "@/contexts/message-context"
 import { TasksProvider } from "@/contexts/task-context"
 import { CalendarProvider } from "@/contexts/calendar-context"
 import { DocumentProvider } from "@/contexts/document-context"
+import { VideoCallProvider } from "@/contexts/video-call-context"
 import { useAuth } from "@/contexts/auth-context"
 import {
   DropdownMenu,
@@ -90,12 +91,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <TasksProvider>
           <CalendarProvider>
             <DocumentProvider>
-              <div className="flex h-screen">
-                <Sidebar />
-                <main className="flex-1 overflow-y-auto">
-                  {children}
-                </main>
-              </div>
+              <VideoCallProvider>
+                <div className="flex h-screen">
+                  <Sidebar />
+                  <main className="flex-1 overflow-y-auto">
+                    {children}
+                  </main>
+                </div>
+              </VideoCallProvider>
             </DocumentProvider>
           </CalendarProvider>
         </TasksProvider>

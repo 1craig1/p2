@@ -6,15 +6,17 @@ import { MiniCalendar } from "@/components/mini-calendar"
 import { Inbox } from "@/components/inbox"
 import { Users } from "lucide-react"
 import { useGroups } from "@/contexts/groups-context"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function DashboardPage() {
   const { groups } = useGroups()
+  const { user } = useAuth()
 
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back, John! Here's an overview of your workspace.</p>
+        <p className="text-muted-foreground">Welcome back, {user?.name}! Here's an overview of your workspace.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

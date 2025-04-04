@@ -1,27 +1,53 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Paperclip, Phone, Send, Video, X, Users } from "lucide-react"
+import { Paperclip, Phone, Send, Video, X, Users, Mic, MicOff, VideoOff } from "lucide-react"
 import { useMessages, type Contact } from "@/contexts/message-context"
+import { useVideoCall } from "@/contexts/video-call-context"
 
 export default function MessagesPage() {
   const { contacts, messages, activeContactId, setActiveContactId, addMessage } = useMessages()
+  const { 
+    localStream, 
+    remoteStream, 
+    isCallActive, 
+    startCall, 
+    endCall, 
+    toggleAudio, 
+    toggleVideo,
+    isAudioEnabled,
+    isVideoEnabled
+  } = useVideoCall()
   const [newMessage, setNewMessage] = useState("")
-  const [isVideoCallActive, setIsVideoCallActive] = useState(false)
+  const localVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteVideoRef = useRef<HTMLVideoElement>(null)
 
   const activeContact = contacts.find((contact) => contact.id === activeContactId) || null
   const activeMessages = activeContactId ? messages[activeContactId] || [] : []
 
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream
+    }
+  }, [localStream])
+
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream
+    }
+  }, [remoteStream])
+
   const handleContactSelect = (contact: Contact) => {
     setActiveContactId(contact.id)
-    setIsVideoCallActive(false)
+    if (isCallActive) {
+      endCall()
+    }
   }
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -38,12 +64,10 @@ export default function MessagesPage() {
     setNewMessage("")
   }
 
-  const startVideoCall = () => {
-    setIsVideoCallActive(true)
-  }
-
-  const endVideoCall = () => {
-    setIsVideoCallActive(false)
+  const handleStartVideoCall = async () => {
+    if (activeContactId) {
+      await startCall(activeContactId)
+    }
   }
 
   return (
@@ -143,29 +167,42 @@ export default function MessagesPage() {
                 <Button variant="ghost" size="icon" onClick={() => {}}>
                   <Phone className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={startVideoCall}>
+                <Button variant="ghost" size="icon" onClick={handleStartVideoCall}>
                   <Video className="h-5 w-5" />
                 </Button>
               </div>
             </div>
 
-            {isVideoCallActive ? (
+            {isCallActive ? (
               <div className="flex-1 bg-gray-900 relative flex flex-col items-center justify-center p-4">
-                <div className="absolute top-4 right-4 z-10">
-                  <Button variant="destructive" size="sm" onClick={endVideoCall}>
+                <div className="absolute top-4 right-4 z-10 flex gap-2">
+                  <Button variant="ghost" size="icon" onClick={toggleAudio} className="bg-gray-800 hover:bg-gray-700">
+                    {isAudioEnabled ? <Mic className="h-5 w-5 text-white" /> : <MicOff className="h-5 w-5 text-white" />}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={toggleVideo} className="bg-gray-800 hover:bg-gray-700">
+                    {isVideoEnabled ? <Video className="h-5 w-5 text-white" /> : <VideoOff className="h-5 w-5 text-white" />}
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={endCall}>
                     <X className="h-4 w-4 mr-2" />
                     End Call
                   </Button>
                 </div>
-                <div className="w-full max-w-2xl aspect-video bg-gray-800 rounded-lg flex items-center justify-center text-white">
-                  <div className="text-center">
-                    <Video className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>Video call with {activeContact.name}</p>
-                    <p className="text-sm text-gray-400 mt-1">Connected</p>
-                  </div>
+                <div className="w-full max-w-2xl aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                  <video
+                    ref={remoteVideoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className="absolute bottom-8 right-8 w-32 aspect-video bg-gray-700 rounded-lg border border-gray-600 shadow-lg">
-                  <div className="w-full h-full flex items-center justify-center text-white text-xs">You</div>
+                <div className="absolute bottom-8 right-8 w-32 aspect-video bg-gray-700 rounded-lg border border-gray-600 shadow-lg overflow-hidden">
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             ) : (
