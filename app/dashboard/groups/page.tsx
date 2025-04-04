@@ -4,15 +4,19 @@ import Link from "next/link"
 import { Users, FileText, Calendar, CheckSquare } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useGroups } from "@/contexts/groups-context"
+import { CreateGroupDialog } from "@/components/create-group-dialog"
 
 export default function GroupsPage() {
   const { groups } = useGroups()
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Groups</h1>
-        <p className="text-muted-foreground">Manage your study groups and project teams.</p>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Groups</h1>
+          <p className="text-muted-foreground">Manage your study groups and project teams.</p>
+        </div>
+        <CreateGroupDialog />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

@@ -6,6 +6,8 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useGroups } from "@/contexts/groups-context"
 import { format } from "date-fns"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AddMembersDialog } from "@/components/add-members-dialog"
 
 export default function GroupPage() {
   const { groupId } = useParams()
@@ -25,14 +27,12 @@ export default function GroupPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/groups" className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-6 w-6" />
-        </Link>
-        <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">{group.name}</h1>
           <p className="text-muted-foreground">{group.description}</p>
         </div>
+        <AddMembersDialog groupId={group.id} groupName={group.name} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

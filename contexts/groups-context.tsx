@@ -41,6 +41,8 @@ export interface Meeting {
 interface GroupsContextType {
   groups: Group[]
   getGroupById: (id: string) => Group | undefined
+  createGroup: (name: string, description: string, initialMembers: string[]) => void
+  addMembersToGroup: (groupId: string, newMembers: string[]) => void
 }
 
 const GroupsContext = createContext<GroupsContextType | undefined>(undefined)
@@ -135,10 +137,37 @@ const defaultGroups: Group[] = [
 ]
 
 export function GroupsProvider({ children }: { children: ReactNode }) {
-  const [groups] = useState<Group[]>(defaultGroups)
+  const [groups, setGroups] = useState<Group[]>(defaultGroups)
 
   const getGroupById = (id: string) => {
     return groups.find((group) => group.id === id)
+  }
+
+  const createGroup = (name: string, description: string, initialMembers: string[]) => {
+    const newGroup: Group = {
+      id: `group-${Date.now()}`,
+      name,
+      description,
+      members: initialMembers,
+      tasks: [],
+      documents: [],
+      meetings: [],
+    }
+    setGroups((prevGroups) => [...prevGroups, newGroup])
+  }
+
+  const addMembersToGroup = (groupId: string, newMembers: string[]) => {
+    setGroups((prevGroups) =>
+      prevGroups.map((group) => {
+        if (group.id === groupId) {
+          return {
+            ...group,
+            members: [...new Set([...group.members, ...newMembers])],
+          }
+        }
+        return group
+      })
+    )
   }
 
   return (
@@ -146,6 +175,8 @@ export function GroupsProvider({ children }: { children: ReactNode }) {
       value={{
         groups,
         getGroupById,
+        createGroup,
+        addMembersToGroup,
       }}
     >
       {children}
