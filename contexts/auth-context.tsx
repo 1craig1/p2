@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import bcrypt from 'bcryptjs'
 
 interface User {
   id: string
@@ -24,7 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  // Check if user is logged in on initial load
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    // In a real app, this would be an API call
     const users = JSON.parse(localStorage.getItem("users") || "[]")
     const foundUser = users.find((u: any) => u.email === email)
 
@@ -42,7 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: false, message: "User not found" }
     }
 
-    if (foundUser.password !== password) {
+    const isPasswordValid = await bcrypt.compare(password, foundUser.password)
+    if (!isPasswordValid) {
       return { success: false, message: "Incorrect password" }
     }
 
@@ -54,26 +54,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signUp = async (name: string, email: string, password: string) => {
-    // In a real app, this would be an API call
     const users = JSON.parse(localStorage.getItem("users") || "[]")
 
-    // Check if user already exists
     if (users.some((u: any) => u.email === email)) {
       return { success: false, message: "Email already in use" }
     }
+
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
 
     const newUser = {
       id: Date.now().toString(),
       name,
       email,
-      password,
+      password: hashedPassword,
     }
 
-    // Save to "database"
+    
     users.push(newUser)
     localStorage.setItem("users", JSON.stringify(users))
 
-    // Log the user in
     const { password: _, ...userWithoutPassword } = newUser
     setUser(userWithoutPassword)
     localStorage.setItem("user", JSON.stringify(userWithoutPassword))
